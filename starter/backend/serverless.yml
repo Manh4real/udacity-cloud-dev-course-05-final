@@ -24,41 +24,6 @@ provider:
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     SIGNED_URL_EXPIRATION: 6000
 
-  # iam
-  iam:
-    role:
-      statements:
-        # DynamoDB - TODOS TABLE
-        # - Effect: Allow
-        #   Action:
-        #     - dynamodb:Scan
-        #     - dynamodb:GetItem
-        #     - dynamodb:UpdateItem
-        #     - dynamodb:PutItem
-        #     - dynamodb:DeleteItem
-        #   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}
-
-        # DynamoDB - TODOS TABLE INDEX
-        - Effect: Allow
-          Action:
-            - dynamodb:Query
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
-
-        # S3 - ATTACHMENTS BUCKET
-        # - Effect: Allow
-        #   Action:
-        #     - s3:PutObject
-        #     - s3:GetObject
-        #   Resource: arn:aws:s3:::${self:provider.environment.TODOS_ATTACHMENTS_BUCKET}/*
-
-        # X-Ray
-        - Effect: 'Allow'
-          Action:
-            - 'xray:PutTraceSegments'
-            - 'xray:PutTelemetryRecords'
-          Resource:
-            - '*'
-
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
@@ -79,7 +44,17 @@ functions:
           - dynamodb:GetItem
           - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}
-
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+      # X-Ray
+      - Effect: 'Allow'
+        Action:
+          - 'xray:PutTraceSegments'
+          - 'xray:PutTelemetryRecords'
+        Resource:
+          - '*'
   # createTodo
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -100,7 +75,13 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}
-
+      # X-Ray
+      - Effect: 'Allow'
+        Action:
+          - 'xray:PutTraceSegments'
+          - 'xray:PutTelemetryRecords'
+        Resource:
+          - '*'
   # updateTodo
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -121,7 +102,13 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}
-
+      # X-Ray
+      - Effect: 'Allow'
+        Action:
+          - 'xray:PutTraceSegments'
+          - 'xray:PutTelemetryRecords'
+        Resource:
+          - '*'
   # deleteTodo
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
@@ -137,7 +124,13 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}
-
+      # X-Ray
+      - Effect: 'Allow'
+        Action:
+          - 'xray:PutTraceSegments'
+          - 'xray:PutTelemetryRecords'
+        Resource:
+          - '*'
   # generateUploadUrl
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
@@ -154,6 +147,18 @@ functions:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.TODOS_ATTACHMENTS_BUCKET}/*
+      # DynamoDB
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE_NAME}
+      # X-Ray
+      - Effect: 'Allow'
+        Action:
+          - 'xray:PutTraceSegments'
+          - 'xray:PutTelemetryRecords'
+        Resource:
+          - '*'
 
 resources:
   Resources:
@@ -169,7 +174,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    # dynamoDB
+    # dynamoDB - Todos table
     TodosDynamoDBTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:

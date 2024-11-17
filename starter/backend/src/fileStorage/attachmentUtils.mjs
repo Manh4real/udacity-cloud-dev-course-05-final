@@ -14,6 +14,10 @@ export async function getAttachmentUploadUrl(attachmentId) {
   const url = await getSignedUrl(s3Client, command, {
     expiresIn: signedUrlExpiration
   })
+  const imageUrl = `https://${attachmentsBucketName}.s3.amazonaws.com/${attachmentId}`
 
-  return url
+  return {
+    uploadUrl: url,
+    imageUrl: imageUrl
+  }
 }

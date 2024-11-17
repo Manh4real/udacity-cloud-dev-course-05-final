@@ -15,7 +15,8 @@ export function createTodo(newTodo, userId) {
     todoId: todoId,
     userId,
     createdAt: new Date().toISOString(),
-    done: false
+    done: false,
+    attachmentUrl: ''
   }
 
   return dbClient.createTodo(newItem)

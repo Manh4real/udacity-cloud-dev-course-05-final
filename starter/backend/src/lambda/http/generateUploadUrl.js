@@ -3,6 +3,8 @@ import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
 
 import { getAttachmentUploadUrl } from '../../fileStorage/attachmentUtils.mjs'
+import { updateTodo } from '../../businessLogic/todos.mjs'
+import { getUserId } from '../utils.mjs'
 
 export const handler = middy()
   .use(httpErrorHandler())
@@ -14,13 +16,19 @@ export const handler = middy()
   .handler(async (event) => {
     console.log('Processing event: ', event)
     const todoId = event.pathParameters.todoId
+    const userId = getUserId(event)
 
-    const signedUploadUrl = await getAttachmentUploadUrl(todoId)
+    const { uploadUrl, imageUrl } = await getAttachmentUploadUrl(todoId)
+
+    const result = await updateTodo(
+      { todoId, userId },
+      { attachmentUrl: imageUrl }
+    )
 
     return {
       statusCode: 201,
       body: JSON.stringify({
-        uploadUrl: signedUploadUrl
+        uploadUrl: uploadUrl
       })
     }
   })
